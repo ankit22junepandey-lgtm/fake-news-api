@@ -2,22 +2,28 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import joblib
 
-# Load model
+# Load the trained model
 model = joblib.load("news_models.pkl")
 
-# Create app
+# Initialize FastAPI app
 app = FastAPI()
 
-# Input format
+# Input schema
 class NewsInput(BaseModel):
     text: str
 
-# Prediction route
+# Root endpoint (just to check if API is live)
+@app.get("/")
+def home():
+    return {"message": "✅ Fake News API is running!"}
+
+# Prediction endpoint
 @app.post("/predict")
-def predict_news(data: NewsInput):
-    if not data.text.strip():
+def predict_news(payload: NewsInput):
+    text = payload.text.strip()
+    if not text:
         return {"error": "⚠️ Please enter some news text"}
 
-    prediction = model.predict([data.text])
-    result = "✅ Real News" if prediction[0] == 1 else "❌ Fake News"
+    prediction = model.predict([text])[0]
+    result = "✅ Real News" if prediction == 1 else "❌ Fake News"
     return {"prediction": result}
