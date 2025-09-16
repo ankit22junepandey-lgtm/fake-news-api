@@ -1,5 +1,6 @@
 import gradio as gr
 import joblib
+import os  # To get the port from environment
 
 # Load model
 model = joblib.load("news_models.pkl")
@@ -20,4 +21,6 @@ iface = gr.Interface(
     description="Enter news text to check if it's Real or Fake."
 )
 
-iface.launch()
+# Launch on 0.0.0.0 and the port provided by Render
+port = int(os.environ.get("PORT", 7860))  # 7860 is default Gradio port locally
+iface.launch(server_name="0.0.0.0", server_port=port)
